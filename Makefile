@@ -5,3 +5,6 @@ kbuild:
 
 clean:
 	make -C $(KDIR) M=`pwd` clean
+
+fmt:
+	clang-format -style=file -i *.c
