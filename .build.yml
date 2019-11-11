@@ -12,3 +12,7 @@ tasks:
   - build: |
       cd amnesiafs
       make
+triggers:
+- to: builds <builds.sr.ht@kragniz.eu>
+  action: email
+  condition: failure
