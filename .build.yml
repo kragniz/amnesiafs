@@ -10,7 +10,7 @@ tasks:
   - install: |
       export KERNEL_VERSION=$(pacman -Q | grep -e '^linux ' | sed -n 's/linux //p')
       sudo pacman --noprogressbar --noconfirm -U "https://archive.archlinux.org/packages/l/linux-headers/linux-headers-${KERNEL_VERSION}-x86_64.pkg.tar.xz"
-      yay -S --noprogressbar --noconfirm virtme-git
+      yay -S --noprogressbar --noconfirm virtme-git &> /dev/null
   - build: |
       cd amnesiafs
       make
