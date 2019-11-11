@@ -1,0 +1,11 @@
+image: archlinux
+secrets:
+  - 831aaa6a-360e-42b0-98cc-49ae770789bf
+packages:
+  - linux-headers
+sources:
+  - git@github.com:kragniz/amnesiafs.git
+tasks:
+  - build: |
+      cd amnesiafs
+      make
