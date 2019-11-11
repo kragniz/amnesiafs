@@ -2,16 +2,21 @@ image: archlinux
 secrets:
   - 831aaa6a-360e-42b0-98cc-49ae770789bf
 packages:
-  - gcc
+  - python-setuptools
+  - busybox
 sources:
   - git@github.com:kragniz/amnesiafs.git
 tasks:
   - install: |
       export KERNEL_VERSION=$(pacman -Q | grep -e '^linux ' | sed -n 's/linux //p')
-      sudo pacman --noconfirm -U "https://archive.archlinux.org/packages/l/linux-headers/linux-headers-${KERNEL_VERSION}-x86_64.pkg.tar.xz"
+      sudo pacman --noprogressbar --noconfirm -U "https://archive.archlinux.org/packages/l/linux-headers/linux-headers-${KERNEL_VERSION}-x86_64.pkg.tar.xz"
+      yay -S --noprogressbar --noconfirm virtme-git
   - build: |
       cd amnesiafs
       make
+  - kernel-tests: |
+      cd amnesiafs
+      make test
 triggers:
 - to: builds <builds.sr.ht@kragniz.eu>
   action: email

@@ -8,3 +8,6 @@ clean:
 
 fmt:
 	clang-format -style=file -i *.c
+
+test:
+	./tests/run-qemu.sh
