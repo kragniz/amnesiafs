@@ -12,3 +12,8 @@ mount -t xfs "${disk}" "/tmp/mount"
 
 ls /tmp/mount
 df -h
+
+dmesg -C
+dmesg -w &
+
+insmod amnesiafs.ko
