@@ -2,7 +2,7 @@ all: amnesiafs.ko
 
 KDIR = /lib/modules/`uname -r`/build
 
-amnesiafs.ko: Kbuild *.c
+amnesiafs.ko: Kbuild *.c *.h
 	make -C $(KDIR) M=`pwd`
 
 clean:
