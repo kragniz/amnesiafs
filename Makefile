@@ -1,6 +1,8 @@
+all: amnesiafs.ko
+
 KDIR = /lib/modules/`uname -r`/build
 
-kbuild:
+amnesiafs.ko: Kbuild *.c
 	make -C $(KDIR) M=`pwd`
 
 clean:
@@ -9,5 +11,5 @@ clean:
 fmt:
 	clang-format -style=file -i *.c
 
-test:
+test: amnesiafs.ko
 	./tests/run-qemu.sh
