@@ -1,4 +1,4 @@
 EXTRA_CFLAGS = -Wall -g -DDEBUG
 obj-m        = amnesiafs.o
 
-amnesiafs-y := main.o
+amnesiafs-y := super.o
