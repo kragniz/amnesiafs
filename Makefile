@@ -9,7 +9,11 @@ clean:
 	make -C $(KDIR) M=`pwd` clean
 
 fmt:
-	clang-format -style=file -i *.c
+	clang-format -style=file -i *.c *.h mkfs/*.c
 
-test: amnesiafs.ko
+mkfs.amnesiafs: mkfs/*
+	make -C mkfs
+	cp mkfs/mkfs.amnesiafs .
+
+test: amnesiafs.ko mkfs.amnesiafs
 	./tests/run-qemu.sh
