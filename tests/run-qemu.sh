@@ -7,7 +7,7 @@ tests_dir="$(realpath "$here")"
 src_dir="$(realpath "$here"/..)"
 
 test_drive="${tests_dir}/test.img"
-dd if=/dev/zero of="${test_drive}" bs=4096 count=512KiB
+dd if=/dev/zero of="${test_drive}" bs=4096 count=128KiB
 
 virtme-run \
     --installed-kernel \

@@ -15,4 +15,5 @@ insmod amnesiafs.ko
 mkdir /tmp/mount
 mount -t amnesiafs "${disk}" "/tmp/mount"
 
+mount
 df -h

@@ -14,14 +14,18 @@ static void amnesiafs_put_super(struct super_block *sb)
 
 static struct super_operations const amnesiafs_super_ops = {
 	.put_super = amnesiafs_put_super,
+	.statfs = simple_statfs,
 };
 
-static int amnesiafs_fill_sb(struct super_block *sb, void *data, int silent)
+static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 {
 	struct inode *root = NULL;
 
+	sb->s_blocksize = PAGE_SIZE;
+	sb->s_blocksize_bits = PAGE_SHIFT;
 	sb->s_magic = AMNESIAFS_MAGIC;
 	sb->s_op = &amnesiafs_super_ops;
+	sb->s_time_gran = 1;
 
 	root = new_inode(sb);
 	if (!root) {
@@ -47,7 +51,7 @@ static struct dentry *amnesiafs_mount(struct file_system_type *type, int flags,
 				      char const *dev, void *data)
 {
 	struct dentry *const entry =
-		mount_bdev(type, flags, dev, data, amnesiafs_fill_sb);
+		mount_bdev(type, flags, dev, data, amnesiafs_fill_super);
 	if (IS_ERR(entry))
 		pr_err("amnesiafs mounting failed\n");
 	else
