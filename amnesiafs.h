@@ -3,7 +3,9 @@
 #ifndef AMNESIAFS_H
 #define AMNESIAFS_H
 
-#define AMNESIAFS_MAGIC 0xdec0ded;
+#define AMNESIAFS_MAGIC 0xdec0ded
+
+#define AMNESIAFS_BLOCKSIZE 4096
 
 struct amnesiafs_super_block {
 	uint64_t magic;
@@ -12,7 +14,7 @@ struct amnesiafs_super_block {
 	char padding[4073];
 };
 
-_Static_assert(sizeof(struct amnesiafs_super_block) == 4096,
-	       "amnesiafs_super_block must be a constent size");
+_Static_assert(sizeof(struct amnesiafs_super_block) == AMNESIAFS_BLOCKSIZE,
+	       "amnesiafs_super_block must remain the same size");
 
 #endif

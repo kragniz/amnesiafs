@@ -12,6 +12,11 @@ dmesg -w &
 
 insmod amnesiafs.ko
 
+xxd -l 48 "${disk}"
+./mkfs.amnesiafs "${disk}"
+sync
+xxd -l 48 "${disk}"
+
 mkdir /tmp/mount
 mount -t amnesiafs "${disk}" "/tmp/mount"
 
