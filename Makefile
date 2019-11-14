@@ -1,4 +1,4 @@
-all: amnesiafs.ko
+all: amnesiafs.ko mkfs.amnesiafs
 
 KDIR = /lib/modules/`uname -r`/build
 
@@ -7,6 +7,8 @@ amnesiafs.ko: Kbuild *.c *.h
 
 clean:
 	make -C $(KDIR) M=`pwd` clean
+	make -C mkfs clean
+	rm mkfs.amnesiafs
 
 fmt:
 	clang-format -style=file -i *.c *.h mkfs/*.c
