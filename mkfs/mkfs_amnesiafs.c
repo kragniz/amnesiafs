@@ -4,6 +4,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <amnesiafs.h>
+
 int main(int argc, char *argv[])
 {
 	int fd;
