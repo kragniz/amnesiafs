@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include <linux/kernel.h>
-#include <linux/init.h>
-#include <linux/module.h>
+#include <linux/buffer_head.h>
 #include <linux/fs.h>
+#include <linux/init.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
 
 #include "amnesiafs.h"
 
@@ -20,6 +21,21 @@ static struct super_operations const amnesiafs_super_ops = {
 static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 {
 	struct inode *root = NULL;
+	struct buffer_head *bh = NULL;
+	struct amnesiafs_super_block *sb_disk;
+
+	/* read the block at 0 */
+	bh = sb_bread(sb, 0);
+	BUG_ON(!bh);
+
+	sb_disk = (struct amnesiafs_super_block *)bh->b_data;
+
+	/* make sure the magic number is what we're expecting */
+	if (sb_disk->magic != AMNESIAFS_MAGIC) {
+		printk("amnesiafs: magic mismatch: wanted 0x%x, read 0x%llx",
+		       AMNESIAFS_MAGIC, sb_disk->magic);
+		return -EINVAL;
+	}
 
 	sb->s_blocksize = PAGE_SIZE;
 	sb->s_blocksize_bits = PAGE_SHIFT;

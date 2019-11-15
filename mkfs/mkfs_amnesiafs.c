@@ -13,7 +13,7 @@ static int write_superblock(int fd)
 {
 	ssize_t written;
 	struct amnesiafs_super_block sb = {
-		.version = 2,
+		.version = 1,
 		.magic = AMNESIAFS_MAGIC,
 	};
 
