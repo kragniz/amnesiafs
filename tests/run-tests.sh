@@ -18,7 +18,7 @@ sync
 xxd -l 48 "${disk}"
 
 mkdir /tmp/mount
-mount -t amnesiafs "${disk}" "/tmp/mount"
+mount -t amnesiafs -o "key_id=12345" "${disk}" "/tmp/mount"
 
 mount
 df -h

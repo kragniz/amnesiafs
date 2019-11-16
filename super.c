@@ -5,8 +5,10 @@
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+#include <linux/slab.h>
 
 #include "amnesiafs.h"
+#include "config.h"
 #include "log.h"
 
 static void amnesiafs_put_super(struct super_block *sb)
@@ -21,9 +23,25 @@ static struct super_operations const amnesiafs_super_ops = {
 
 static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 {
+	int err = 0;
 	struct inode *root = NULL;
 	struct buffer_head *bh = NULL;
 	struct amnesiafs_super_block *sb_disk;
+
+	struct amnesiafs_config *config =
+		kzalloc(sizeof(struct amnesiafs_config), GFP_KERNEL);
+	if (!config)
+		return -ENOMEM;
+
+	err = amnesiafs_parse_options((char *)data, config);
+	if (err)
+		goto out_err;
+
+	err = -EINVAL;
+	if (!config->key_id) {
+		amnesiafs_msg(KERN_ERR, "missing key_id");
+		goto out_err;
+	}
 
 	/* read the block at 0 */
 	bh = sb_bread(sb, 0);
@@ -63,6 +81,10 @@ static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 	}
 
 	return 0;
+
+out_err:
+	kfree(config);
+	return err;
 }
 
 static struct dentry *amnesiafs_mount(struct file_system_type *type, int flags,
@@ -89,7 +111,7 @@ static int __init amnesiafs_init(void)
 {
 	int err = register_filesystem(&amnesiafs_fs_type);
 	if (err < 0) {
-		pr_err("Failed to register filesystem\n");
+		pr_err("failed to register filesystem\n");
 	}
 	return 0;
 }
@@ -98,7 +120,7 @@ static void __exit amnesiafs_exit(void)
 {
 	int err = unregister_filesystem(&amnesiafs_fs_type);
 	if (err < 0) {
-		pr_err("Failed to unregister filesystem\n");
+		pr_err("failed to unregister filesystem\n");
 	}
 }
 
