@@ -12,7 +12,7 @@ disk="/dev/disk/by-id/scsi-0virtme_disk_test"
 ./mkfs.amnesiafs "${disk}"
 xxd -l 48 "${disk}"
 
-key_id=$(echo -n "my passphrase" | keyctl padd user amnesiafs:key @u)
+key_id=$(echo -n "my passphrase" | keyctl padd logon amnesiafs:key @s)
 
 mkdir /tmp/mount
 
