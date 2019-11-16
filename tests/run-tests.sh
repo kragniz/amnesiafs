@@ -17,8 +17,10 @@ xxd -l 48 "${disk}"
 sync
 xxd -l 48 "${disk}"
 
+key_id=$(echo -n "my passphrase" | keyctl padd user amnesiafs:key @u)
+
 mkdir /tmp/mount
-mount -t amnesiafs -o "key_id=12345" "${disk}" "/tmp/mount"
+mount -t amnesiafs -o "key_id=${key_id}" "${disk}" "/tmp/mount"
 
 mount
 df -h
