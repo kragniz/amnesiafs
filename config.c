@@ -9,10 +9,12 @@
 #include "config.h"
 
 enum { OPT_KEY_ID,
+       OPT_ERR,
 };
 
 static const match_table_t tokens = {
 	{ OPT_KEY_ID, "key_id=%s" },
+	{ OPT_ERR, NULL },
 };
 
 int amnesiafs_parse_options(char *options, struct amnesiafs_config *config)
