@@ -10,7 +10,7 @@ insmod amnesiafs.ko
 
 disk="/dev/disk/by-id/scsi-0virtme_disk_test"
 ./mkfs.amnesiafs "${disk}"
-xxd -l 48 "${disk}"
+od -x "${disk}"
 
 key_name="amnesiafs:$(hexdump -n 4 -e '4/4 "%08x" 1 "\n"' /dev/random)"
 echo -n "my passphrase" | keyctl padd logon "${key_name}" @u
