@@ -37,8 +37,11 @@ int amnesiafs_parse_options(char *options, struct amnesiafs_config *config)
 		switch (token) {
 		case OPT_KEY_ID:
 			err = kstrtos32(args[0].from, 10, &config->key_id);
-			if (err)
+			if (err) {
+				pr_err("could not parse \"%s\" (must be int)",
+				       p);
 				return err;
+			}
 
 			pr_debug("key_id: %d", config->key_id);
 

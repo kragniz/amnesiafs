@@ -26,4 +26,9 @@ if mount -t amnesiafs -o "key_id=${key_id},toot=42" "${disk}" "/tmp/mount"; then
     exit 1
 fi
 
+if mount -t amnesiafs -o "key_id=boopboop" "${disk}" "/tmp/mount"; then
+    echo "mounting with non-numeric key_id should have failed"
+    exit 1
+fi
+
 mount -t amnesiafs -o "key_id=${key_id}" "${disk}" "/tmp/mount"
