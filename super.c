@@ -6,12 +6,11 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/slab.h>
-#include <linux/key.h>
-#include <keys/user-type.h>
 
 #include "amnesiafs.h"
 #include "config.h"
 #include "log.h"
+#include "keys.h"
 
 static void amnesiafs_put_super(struct super_block *sb)
 {
@@ -29,8 +28,6 @@ static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 	struct inode *root = NULL;
 	struct buffer_head *bh = NULL;
 	struct amnesiafs_super_block *sb_disk;
-	struct key *user_key = NULL;
-	const struct user_key_payload *upayload;
 	char *passphrase;
 
 	struct amnesiafs_config *config =
@@ -48,29 +45,9 @@ static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 		goto out_err;
 	}
 
-	user_key = request_key(&key_type_logon, config->key_desc, NULL);
-
-	if (IS_ERR(user_key)) {
-		amnesiafs_msg(KERN_ERR, "Failed to request key: %ld",
-			      PTR_ERR(user_key));
-		err = PTR_ERR(user_key);
-		goto out_err;
-	}
-
-	passphrase = kzalloc(user_key->datalen + 1, GFP_KERNEL);
-	if (!passphrase)
-		return -ENOMEM;
-
-	down_read(&user_key->sem);
-	upayload = user_key_payload_locked(user_key);
-	if (IS_ERR_OR_NULL(upayload)) {
-		err = upayload ? PTR_ERR(upayload) : -EINVAL;
+	err = amnesiafs_get_passphrase(&passphrase, config->key_desc);
+	if (err)
 		goto out_key_err;
-	}
-
-	strncpy(passphrase, upayload->data, user_key->datalen);
-
-	pr_debug("passphrase: '%s'", passphrase);
 
 	/* read the block at 0 */
 	bh = sb_bread(sb, 0);
@@ -112,7 +89,8 @@ static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 	return 0;
 
 out_key_err:
-	kfree(passphrase);
+	if (passphrase)
+		kfree(passphrase);
 out_err:
 	if (config->key_desc)
 		kfree(config->key_desc);
