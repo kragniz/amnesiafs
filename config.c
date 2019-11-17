@@ -2,25 +2,23 @@
 
 #include <linux/types.h>
 
-#include <linux/kernel.h>
 #include <linux/string.h>
 #include <linux/parser.h>
 #include <linux/gfp.h>
 
 #include "config.h"
 
-enum { OPT_KEY_ID,
+enum { OPT_KEY_NAME,
        OPT_ERR,
 };
 
 static const match_table_t tokens = {
-	{ OPT_KEY_ID, "key_id=%s" },
+	{ OPT_KEY_NAME, "key_name=%s" },
 	{ OPT_ERR, NULL },
 };
 
 int amnesiafs_parse_options(char *options, struct amnesiafs_config *config)
 {
-	int err;
 	char *p;
 	substring_t args[MAX_OPT_ARGS];
 
@@ -35,16 +33,9 @@ int amnesiafs_parse_options(char *options, struct amnesiafs_config *config)
 
 		token = match_token(p, tokens, args);
 		switch (token) {
-		case OPT_KEY_ID:
-			err = kstrtos32(args[0].from, 10, &config->key_id);
-			if (err) {
-				pr_err("could not parse \"%s\" (must be int)",
-				       p);
-				return err;
-			}
-
-			pr_debug("key_id: %d", config->key_id);
-
+		case OPT_KEY_NAME:
+			config->key_desc = kstrdup(args[0].from, GFP_KERNEL);
+			pr_debug("key_name: %s", config->key_desc);
 			break;
 		default: {
 			pr_err("unrecognized mount option \"%s\" or missing value",

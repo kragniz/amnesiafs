@@ -6,7 +6,7 @@
 #include <linux/key.h>
 
 struct amnesiafs_config {
-	key_serial_t key_id;
+	char *key_desc;
 };
 
 int amnesiafs_parse_options(char *options, struct amnesiafs_config *config);

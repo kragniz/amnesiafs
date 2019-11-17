@@ -12,23 +12,19 @@ disk="/dev/disk/by-id/scsi-0virtme_disk_test"
 ./mkfs.amnesiafs "${disk}"
 xxd -l 48 "${disk}"
 
-key_id=$(echo -n "my passphrase" | keyctl padd logon amnesiafs:key @u)
+key_name="amnesiafs:$(hexdump -n 4 -e '4/4 "%08x" 1 "\n"' /dev/random)"
+echo -n "my passphrase" | keyctl padd logon "${key_name}" @u
 
 mkdir /tmp/mount
 
 if mount -t amnesiafs "${disk}" "/tmp/mount"; then
-    echo "mounting without key_id option should have failed"
+    echo "mounting without key_name option should have failed"
     exit 1
 fi
 
-if mount -t amnesiafs -o "key_id=${key_id},toot=42" "${disk}" "/tmp/mount"; then
+if mount -t amnesiafs -o "key_name=${key_name},toot=42" "${disk}" "/tmp/mount"; then
     echo "mounting with bad options should have failed"
     exit 1
 fi
 
-if mount -t amnesiafs -o "key_id=boopboop" "${disk}" "/tmp/mount"; then
-    echo "mounting with non-numeric key_id should have failed"
-    exit 1
-fi
-
-mount -t amnesiafs -o "key_id=${key_id}" "${disk}" "/tmp/mount"
+mount -t amnesiafs -o "key_name=${key_name}" "${disk}" "/tmp/mount"

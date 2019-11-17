@@ -43,12 +43,12 @@ static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 		goto out_err;
 
 	err = -EINVAL;
-	if (!config->key_id) {
+	if (!config->key_desc) {
 		amnesiafs_msg(KERN_ERR, "missing key_id");
 		goto out_err;
 	}
 
-	user_key = request_key(&key_type_logon, "amnesiafs:key", NULL);
+	user_key = request_key(&key_type_logon, config->key_desc, NULL);
 
 	if (IS_ERR(user_key)) {
 		amnesiafs_msg(KERN_ERR, "Failed to request key: %ld",
@@ -114,6 +114,8 @@ static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 out_key_err:
 	kfree(passphrase);
 out_err:
+	if (config->key_desc)
+		kfree(config->key_desc);
 	kfree(config);
 	return err;
 }
