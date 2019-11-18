@@ -28,7 +28,6 @@ static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 	struct inode *root = NULL;
 	struct buffer_head *bh = NULL;
 	struct amnesiafs_super_block *sb_disk;
-	char *passphrase;
 
 	struct amnesiafs_config *config =
 		kzalloc(sizeof(struct amnesiafs_config), GFP_KERNEL);
@@ -45,7 +44,7 @@ static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 		goto out_err;
 	}
 
-	err = amnesiafs_get_passphrase(&passphrase, config->key_desc);
+	err = amnesiafs_get_passphrase(&config->passphrase, config->key_desc);
 	if (err)
 		goto out_key_err;
 
@@ -89,8 +88,8 @@ static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 	return 0;
 
 out_key_err:
-	if (passphrase)
-		kfree(passphrase);
+	if (config->passphrase)
+		kfree(config->passphrase);
 out_err:
 	if (config->key_desc)
 		kfree(config->key_desc);

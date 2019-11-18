@@ -6,7 +6,11 @@
 #include <linux/key.h>
 
 struct amnesiafs_config {
+	/* name of the user's passphrase key */
 	char *key_desc;
+
+	/* probably not the best place to store this */
+	char *passphrase;
 };
 
 int amnesiafs_parse_options(char *options, struct amnesiafs_config *config);
