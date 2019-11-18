@@ -3,8 +3,6 @@
 #ifndef AMNESIAFS_CONFIG_H
 #define AMNESIAFS_CONFIG_H
 
-#include <linux/key.h>
-
 struct amnesiafs_config {
 	/* name of the user's passphrase key */
 	char *key_desc;
