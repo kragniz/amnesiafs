@@ -2,6 +2,8 @@
 
 set -euxo pipefail
 
+export PATH=$(realpath .):${PATH}
+
 # start logging kernel messages
 dmesg -C
 dmesg -w &
@@ -9,11 +11,11 @@ dmesg -w &
 insmod amnesiafs.ko
 
 disk="/dev/disk/by-id/scsi-0virtme_disk_test"
-./mkfs.amnesiafs "${disk}"
+mkfs.amnesiafs "${disk}"
 od -x "${disk}"
 
 key_name="amnesiafs:$(hexdump -n 4 -e '4/4 "%08x" 1 "\n"' /dev/random | xargs)"
-echo -n "my passphrase" | keyctl padd logon "${key_name}" @u
+echo "my passphrase" | amnesiafs-store-passphrase "${key_name}"
 
 mkdir /tmp/mount
 
