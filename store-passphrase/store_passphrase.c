@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <termios.h>
+#include <unistd.h>
 
 #include <argon2.h>
 #include <keyutils.h>
@@ -15,13 +16,16 @@ ssize_t get_passphrase(char *prompt, char *line, size_t n, FILE *stream)
 {
 	struct termios old, new;
 	int read;
+	bool tty = isatty(fileno(stream));
 
-	if (tcgetattr(fileno(stream), &old) != 0)
-		return -1;
-	new = old;
-	new.c_lflag &= ~ECHO;
-	if (tcsetattr(fileno(stream), TCSAFLUSH, &new) != 0)
-		return -1;
+	if (tty) {
+		if (tcgetattr(fileno(stream), &old) != 0)
+			return -1;
+		new = old;
+		new.c_lflag &= ~ECHO;
+		if (tcsetattr(fileno(stream), TCSAFLUSH, &new) != 0)
+			return -1;
+	}
 
 	if (prompt)
 		printf("%s", prompt);
@@ -34,7 +38,9 @@ ssize_t get_passphrase(char *prompt, char *line, size_t n, FILE *stream)
 	}
 	printf("\n");
 
-	tcsetattr(fileno(stream), TCSAFLUSH, &old);
+	if (tty) {
+		tcsetattr(fileno(stream), TCSAFLUSH, &old);
+	}
 
 	return read;
 }
