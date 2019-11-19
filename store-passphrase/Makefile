@@ -1,5 +1,5 @@
 CC = gcc
-LINK = $(shell pkg-config --libs --cflags libkeyutils)
+LINK = $(shell pkg-config --libs --cflags libkeyutils) $(shell pkg-config --libs --cflags libargon2)
 CFLAGS = -g -Wall -fsanitize=address,undefined
 
 all: amnesiafs-store-passphrase

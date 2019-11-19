@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include <keyutils.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <termios.h>
 
-#define PASSPHRASE_MAX_LEN 255
+#include <argon2.h>
+#include <keyutils.h>
+
+#define KEY_LEN 64
 
 ssize_t get_passphrase(char *prompt, char *line, size_t n, FILE *stream)
 {
@@ -37,12 +39,25 @@ ssize_t get_passphrase(char *prompt, char *line, size_t n, FILE *stream)
 	return read;
 }
 
+int get_key_from_passphrase(char *passphrase, uint8_t *key)
+{
+	const uint32_t t_cost = 2;
+	const uint32_t m_cost = 1 << 16;
+	const uint32_t parallelism = 1;
+	const char *salt = "todo: move me to the fs superblock and randomize";
+
+	return argon2d_hash_raw(t_cost, m_cost, parallelism, passphrase,
+				strlen(passphrase), salt, strlen(salt), key,
+				KEY_LEN);
+}
+
 int main(int argc, char *argv[])
 {
 	key_serial_t key;
 	size_t passphrase_max = 255;
 	char passphrase[passphrase_max];
 	ssize_t passphrase_len;
+	uint8_t key_value[KEY_LEN];
 
 	if (argc != 2) {
 		printf("Usage: %s amnesiafs:key\n", argv[0]);
@@ -60,7 +75,13 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	key = add_key("logon", argv[1], passphrase, strlen(passphrase),
+	int err = get_key_from_passphrase(passphrase, key_value);
+	if (err != 0) {
+		perror("Error deriving key");
+		return 1;
+	}
+
+	key = add_key("logon", argv[1], key_value, KEY_LEN,
 		      KEY_SPEC_USER_KEYRING);
 	if (key == -1) {
 		perror("Error adding key");
