@@ -22,24 +22,26 @@ int amnesiafs_get_passphrase(char **passphrase, const char *key_desc)
 	}
 
 	*passphrase = kzalloc(user_key->datalen + 1, GFP_KERNEL);
-	if (!passphrase)
-		return -ENOMEM;
+	if (!passphrase) {
+		err = -ENOMEM;
+		goto out_err;
+	}
 
 	down_read(&user_key->sem);
 	upayload = user_key_payload_locked(user_key);
 	if (IS_ERR_OR_NULL(upayload)) {
 		err = upayload ? PTR_ERR(upayload) : -EINVAL;
-		goto out_err;
+		goto out_key_err;
 	}
 
-	strncpy(*passphrase, upayload->data, user_key->datalen);
+	strlcpy(*passphrase, upayload->data, user_key->datalen);
 	pr_debug("passphrase: '%s'", *passphrase);
 
 	up_read(&user_key->sem);
 
+out_key_err:
 	/* make sure the passphrase doesn't stay around longer than necessary */
 	key_revoke(user_key);
-
 out_err:
 	return err;
 }
