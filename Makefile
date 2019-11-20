@@ -23,5 +23,5 @@ amnesiafs-store-passphrase: store-passphrase/*
 	make -C store-passphrase
 	cp store-passphrase/amnesiafs-store-passphrase .
 
-test: amnesiafs.ko mkfs.amnesiafs
+test: amnesiafs.ko mkfs.amnesiafs amnesiafs-store-passphrase
 	./tests/run-qemu.sh
