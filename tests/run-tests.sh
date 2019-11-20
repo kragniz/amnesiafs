@@ -20,13 +20,20 @@ echo "my passphrase" | amnesiafs-store-passphrase "${key_name}"
 mkdir /tmp/mount
 
 if mount -t amnesiafs "${disk}" "/tmp/mount"; then
-    echo "mounting without key_name option should have failed"
+    echo "mounting without key_name option should fail"
     exit 1
 fi
 
 if mount -t amnesiafs -o "key_name=${key_name},toot=42" "${disk}" "/tmp/mount"; then
-    echo "mounting with bad options should have failed"
+    echo "mounting with bad options should fail"
     exit 1
 fi
 
 mount -t amnesiafs -o "key_name=${key_name}" "${disk}" "/tmp/mount"
+
+umount "/tmp/mount"
+
+if mount -t amnesiafs -o "key_name=${key_name}" "${disk}" "/tmp/mount"; then
+    echo "key should have been revoked"
+    exit 1
+fi

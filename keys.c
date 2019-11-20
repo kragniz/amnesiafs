@@ -35,6 +35,11 @@ int amnesiafs_get_passphrase(char **passphrase, const char *key_desc)
 	strncpy(*passphrase, upayload->data, user_key->datalen);
 	pr_debug("passphrase: '%s'", *passphrase);
 
+	up_read(&user_key->sem);
+
+	/* make sure the passphrase doesn't stay around longer than necessary */
+	key_revoke(user_key);
+
 out_err:
 	return err;
 }
