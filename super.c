@@ -14,7 +14,7 @@
 
 static void amnesiafs_put_super(struct super_block *sb)
 {
-	pr_debug("amnesiafs super block destroyed\n");
+	amnesiafs_debug("amnesiafs super block destroyed");
 }
 
 static struct super_operations const amnesiafs_super_ops = {
@@ -40,7 +40,7 @@ static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 
 	err = -EINVAL;
 	if (!config->key_desc) {
-		amnesiafs_msg(KERN_ERR, "missing key_id");
+		amnesiafs_err("missing key_id");
 		goto out_err;
 	}
 
@@ -56,9 +56,8 @@ static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 
 	/* make sure the magic number is what we're expecting */
 	if (sb_disk->magic != AMNESIAFS_MAGIC) {
-		amnesiafs_msg(KERN_INFO,
-			      "magic mismatch: wanted 0x%x, read 0x%llx",
-			      AMNESIAFS_MAGIC, sb_disk->magic);
+		amnesiafs_info("magic mismatch: wanted 0x%x, read 0x%llx",
+			       AMNESIAFS_MAGIC, sb_disk->magic);
 		return -EINVAL;
 	}
 
@@ -70,7 +69,7 @@ static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 
 	root = new_inode(sb);
 	if (!root) {
-		pr_err("inode allocation failed\n");
+		amnesiafs_err("inode allocation failed\n");
 		return -ENOMEM;
 	}
 
@@ -81,7 +80,7 @@ static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 
 	sb->s_root = d_make_root(root);
 	if (!sb->s_root) {
-		pr_err("root creation failed\n");
+		amnesiafs_err("root creation failed\n");
 		return -ENOMEM;
 	}
 
@@ -103,9 +102,9 @@ static struct dentry *amnesiafs_mount(struct file_system_type *type, int flags,
 	struct dentry *const entry =
 		mount_bdev(type, flags, dev, data, amnesiafs_fill_super);
 	if (IS_ERR(entry))
-		pr_err("amnesiafs mounting failed\n");
+		amnesiafs_err("amnesiafs mounting failed\n");
 	else
-		pr_debug("amnesiafs mounted\n");
+		amnesiafs_debug("mounted");
 	return entry;
 }
 
@@ -121,11 +120,11 @@ static int __init amnesiafs_init(void)
 {
 	int err = register_filesystem(&amnesiafs_fs_type);
 	if (err < 0) {
-		pr_err("failed to register filesystem\n");
+		amnesiafs_err("failed to register filesystem\n");
 	}
 	err = register_key_type(&amnesiafs_key_type);
 	if (err < 0)
-		pr_err("failed to register key type\n");
+		amnesiafs_err("failed to register key type\n");
 	return err;
 }
 
@@ -133,7 +132,7 @@ static void __exit amnesiafs_exit(void)
 {
 	int err = unregister_filesystem(&amnesiafs_fs_type);
 	if (err < 0) {
-		pr_err("failed to unregister filesystem\n");
+		amnesiafs_err("failed to unregister filesystem\n");
 	}
 	unregister_key_type(&amnesiafs_key_type);
 }

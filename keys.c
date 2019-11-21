@@ -26,8 +26,7 @@ int amnesiafs_get_passphrase(char **passphrase, const char *key_desc)
 	user_key = request_key(&amnesiafs_key_type, key_desc, NULL);
 
 	if (IS_ERR(user_key)) {
-		amnesiafs_msg(KERN_ERR, "Failed to request key: %ld",
-			      PTR_ERR(user_key));
+		amnesiafs_err("Failed to request key: %ld", PTR_ERR(user_key));
 		err = PTR_ERR(user_key);
 		goto out_err;
 	}
@@ -46,7 +45,7 @@ int amnesiafs_get_passphrase(char **passphrase, const char *key_desc)
 	}
 
 	strlcpy(*passphrase, upayload->data, user_key->datalen);
-	pr_debug("passphrase: '%s'", *passphrase);
+	amnesiafs_debug("passphrase: '%s'", *passphrase);
 
 	up_read(&user_key->sem);
 
