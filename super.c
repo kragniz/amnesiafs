@@ -123,7 +123,10 @@ static int __init amnesiafs_init(void)
 	if (err < 0) {
 		pr_err("failed to register filesystem\n");
 	}
-	return 0;
+	err = register_key_type(&amnesiafs_key_type);
+	if (err < 0)
+		pr_err("failed to register key type\n");
+	return err;
 }
 
 static void __exit amnesiafs_exit(void)
@@ -132,6 +135,9 @@ static void __exit amnesiafs_exit(void)
 	if (err < 0) {
 		pr_err("failed to unregister filesystem\n");
 	}
+	err = register_key_type(&amnesiafs_key_type);
+	if (err < 0)
+		pr_err("failed to unregister key type");
 }
 
 module_init(amnesiafs_init);

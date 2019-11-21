@@ -2,9 +2,20 @@
 
 #include <linux/slab.h>
 #include <linux/key.h>
+#include <linux/key-type.h>
 #include <keys/user-type.h>
 
 #include "log.h"
+
+struct key_type amnesiafs_key_type = {
+	.name = "amnesiafs",
+	.preparse = user_preparse,
+	.free_preparse = user_free_preparse,
+	.instantiate = generic_key_instantiate,
+	.revoke = user_revoke,
+	.destroy = user_destroy,
+	.describe = user_describe,
+};
 
 int amnesiafs_get_passphrase(char **passphrase, const char *key_desc)
 {
@@ -12,7 +23,7 @@ int amnesiafs_get_passphrase(char **passphrase, const char *key_desc)
 	struct key *user_key;
 	const struct user_key_payload *upayload;
 
-	user_key = request_key(&key_type_logon, key_desc, NULL);
+	user_key = request_key(&amnesiafs_key_type, key_desc, NULL);
 
 	if (IS_ERR(user_key)) {
 		amnesiafs_msg(KERN_ERR, "Failed to request key: %ld",

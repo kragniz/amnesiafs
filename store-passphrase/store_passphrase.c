@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	key = add_key("logon", argv[1], key_value, KEY_LEN,
+	key = add_key("amnesiafs", argv[1], key_value, KEY_LEN,
 		      KEY_SPEC_USER_KEYRING);
 	if (key == -1) {
 		perror("Error adding key");
