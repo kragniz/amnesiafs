@@ -37,3 +37,5 @@ if mount -t amnesiafs -o "key_name=${key_name}" "${disk}" "/tmp/mount"; then
     echo "key should have been revoked"
     exit 1
 fi
+
+printf "\n\t success (ॢ˘⌣˘ ॢ⑅)\n\n"
