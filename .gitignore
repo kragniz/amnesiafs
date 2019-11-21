@@ -1,0 +1,10 @@
+*.o
+*.ko
+*.mod
+*.cmd
+*.symvers
+*.mod.c
+*.order
+*.img
+amnesiafs-store-passphrase
+mkfs.amnesiafs
