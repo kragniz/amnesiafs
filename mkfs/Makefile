@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -Wall -fsanitize=address
+CFLAGS = -g -Wall -fsanitize=address,undefined
 
 all: mkfs.amnesiafs
 
