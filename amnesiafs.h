@@ -13,7 +13,7 @@ struct amnesiafs_super_block {
 
 	uint8_t salt[16];
 
-	char padding[4057];
+	uint8_t padding[4057];
 };
 
 _Static_assert(sizeof(struct amnesiafs_super_block) == AMNESIAFS_BLOCKSIZE,
