@@ -27,7 +27,7 @@ od -x "${disk}"
 
 start_test "amnesiafs-store-passphrase"
 key_name="$(hexdump -n 4 -e '4/4 "%08x" 1 "\n"' /dev/random | xargs)"
-echo "my passphrase" | amnesiafs-store-passphrase "${key_name}"
+echo "my passphrase" | amnesiafs-store-passphrase "${key_name}" "${disk}"
 
 keyctl show
 
