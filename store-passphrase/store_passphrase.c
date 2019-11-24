@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -120,6 +121,9 @@ int main(int argc, char *argv[])
 	}
 
 	salt_len = sizeof(sb.salt) / sizeof(sb.salt[0]);
+	/* make sure the read salt is the expected length */
+	assert(salt_len == 16);
+
 	int err = get_key_from_passphrase(passphrase, key_value, sb.salt,
 					  salt_len);
 	if (err != 0) {
