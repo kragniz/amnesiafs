@@ -23,6 +23,7 @@ static void amnesiafs_put_super(struct super_block *sb)
 static struct super_operations const amnesiafs_super_ops = {
 	.put_super = amnesiafs_put_super,
 	.statfs = simple_statfs,
+	.destroy_inode = amnesiafs_destroy_inode,
 };
 
 static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)

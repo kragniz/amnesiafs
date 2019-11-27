@@ -54,6 +54,15 @@ struct amnesiafs_inode *amnesiafs_get_inode(struct super_block *sb,
 	return inode_buf;
 }
 
+void amnesiafs_destroy_inode(struct inode *inode)
+{
+	struct simplefs_inode *amnesiafs_inode = inode->i_private;
+
+	amnesiafs_debug("freeing inode %p (%lu)\n", amnesiafs_inode,
+			inode->i_ino);
+	kmem_cache_free(amnesiafs_inode_cache, amnesiafs_inode);
+}
+
 struct dentry *amnesiafs_lookup(struct inode *parent_inode,
 				struct dentry *child_dentry, unsigned int flags)
 {
