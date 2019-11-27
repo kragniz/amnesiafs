@@ -16,6 +16,17 @@ struct amnesiafs_super_block {
 	uint8_t padding[4057];
 };
 
+struct amnesiafs_inode {
+	mode_t mode;
+	uint64_t inode_no;
+	uint64_t data_block_number;
+
+	union {
+		uint64_t file_size;
+		uint64_t dir_children_count;
+	};
+};
+
 _Static_assert(sizeof(struct amnesiafs_super_block) == AMNESIAFS_BLOCKSIZE,
 	       "amnesiafs_super_block must remain the same size");
 

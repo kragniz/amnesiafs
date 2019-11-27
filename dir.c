@@ -3,19 +3,11 @@
 #include <linux/fs.h>
 #include <linux/buffer_head.h>
 
+#include "amnesiafs.h"
+
 #include "dir.h"
 #include "log.h"
-
-struct amnesiafs_inode {
-	mode_t mode;
-	uint64_t inode_no;
-	uint64_t data_block_number;
-
-	union {
-		uint64_t file_size;
-		uint64_t dir_children_count;
-	};
-};
+#include "inode.h"
 
 struct amnesiafs_dir_record {
 	char filename[255];

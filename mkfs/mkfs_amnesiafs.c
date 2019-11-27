@@ -29,6 +29,28 @@ static int ensure_random_salt(uint8_t *buf)
 	}
 }
 
+static int write_root_inode(int fd)
+{
+	ssize_t ret;
+
+	struct amnesiafs_inode root_inode;
+
+	root_inode.mode = S_IFDIR;
+	root_inode.inode_no = 1;
+	root_inode.data_block_number = 4;
+	root_inode.dir_children_count = 1;
+
+	ret = write(fd, &root_inode, sizeof(root_inode));
+
+	if (ret != sizeof(root_inode)) {
+		printf("Error: wrote the wrong number of bytes (%zd instead of %ld)\n",
+		       ret, sizeof(root_inode));
+		return 1;
+	}
+
+	return 0;
+}
+
 static int write_superblock(int fd)
 {
 	int err = 0;
@@ -77,6 +99,12 @@ int main(int argc, char *argv[])
 	err = write_superblock(fd);
 	if (err != 0) {
 		perror("Error writing superblock");
+		goto out;
+	}
+
+	err = write_root_inode(fd);
+	if (err != 0) {
+		perror("Error writing root inode");
 		goto out;
 	}
 
