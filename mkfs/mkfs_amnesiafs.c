@@ -31,7 +31,7 @@ static int ensure_random_salt(uint8_t *buf)
 
 static int write_root_inode(int fd)
 {
-	ssize_t ret;
+	ssize_t written;
 
 	struct amnesiafs_inode root_inode;
 
@@ -40,11 +40,11 @@ static int write_root_inode(int fd)
 	root_inode.data_block_number = 4;
 	root_inode.dir_children_count = 1;
 
-	ret = write(fd, &root_inode, sizeof(root_inode));
+	written = write(fd, &root_inode, sizeof(root_inode));
 
-	if (ret != sizeof(root_inode)) {
+	if (written != sizeof(root_inode)) {
 		printf("Error: wrote the wrong number of bytes (%zd instead of %ld)\n",
-		       ret, sizeof(root_inode));
+		       written, sizeof(root_inode));
 		return 1;
 	}
 
@@ -57,6 +57,7 @@ static int write_superblock(int fd)
 	ssize_t written;
 	uint8_t salt[16];
 
+	/* get a fresh salt for every amnesiafs device */
 	err = ensure_random_salt(salt);
 	if (err < 0) {
 		return err;

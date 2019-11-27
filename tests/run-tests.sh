@@ -47,6 +47,10 @@ fi
 start_test "well formed key_name"
 mount -t amnesiafs -o "key_name=${key_name}" "${disk}" "/tmp/mount"
 
+start_test "listing"
+ls -la "/tmp/"
+ls -la "/tmp/mount"
+
 start_test "umount"
 umount "/tmp/mount"
 
