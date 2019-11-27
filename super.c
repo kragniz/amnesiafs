@@ -13,6 +13,9 @@
 #include "dir.h"
 #include "log.h"
 #include "keys.h"
+#include "log.h"
+
+struct kmem_cache *amnesiafs_inode_cache = NULL;
 
 static void amnesiafs_put_super(struct super_block *sb)
 {
@@ -121,6 +124,12 @@ struct file_system_type amnesiafs_fs_type = {
 
 static int __init amnesiafs_init(void)
 {
+	amnesiafs_inode_cache = kmem_cache_create(
+		"amnesiafs_inode_cache", sizeof(struct amnesiafs_inode), 0,
+		(SLAB_RECLAIM_ACCOUNT | SLAB_MEM_SPREAD), NULL);
+	if (!amnesiafs_inode_cache)
+		return -ENOMEM;
+
 	int err = register_filesystem(&amnesiafs_fs_type);
 	if (err < 0) {
 		amnesiafs_err("failed to register filesystem\n");
@@ -137,6 +146,7 @@ static void __exit amnesiafs_exit(void)
 	if (err < 0) {
 		amnesiafs_err("failed to unregister filesystem\n");
 	}
+	kmem_cache_destroy(amnesiafs_inode_cache);
 	unregister_key_type(&amnesiafs_key_type);
 }
 
