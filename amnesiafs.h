@@ -7,6 +7,8 @@
 
 #define AMNESIAFS_BLOCKSIZE 4096
 
+#define AMNESIAFS_FILENAME_MAX 255
+
 struct amnesiafs_super_block {
 	uint64_t magic;
 	uint64_t version;
@@ -25,6 +27,11 @@ struct amnesiafs_inode {
 		uint64_t file_size;
 		uint64_t dir_children_count;
 	};
+};
+
+struct amnesiafs_dir_record {
+	char filename[AMNESIAFS_FILENAME_MAX];
+	uint64_t inode_no;
 };
 
 _Static_assert(sizeof(struct amnesiafs_super_block) == AMNESIAFS_BLOCKSIZE,

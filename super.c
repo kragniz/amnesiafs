@@ -65,7 +65,8 @@ static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 		return -EINVAL;
 	}
 
-	sb->s_blocksize = PAGE_SIZE;
+	sb->s_blocksize = AMNESIAFS_BLOCKSIZE;
+	/* number of bits the blocksize requires, I think ??? */
 	sb->s_blocksize_bits = PAGE_SHIFT;
 	sb->s_magic = AMNESIAFS_MAGIC;
 	sb->s_op = &amnesiafs_super_ops;

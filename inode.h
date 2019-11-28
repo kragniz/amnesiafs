@@ -14,4 +14,6 @@ struct amnesiafs_inode *amnesiafs_get_inode(struct super_block *sb,
 
 void amnesiafs_destroy_inode(struct inode *inode);
 
+struct inode *amnesiafs_iget(struct super_block *sb, int ino);
+
 #endif

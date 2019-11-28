@@ -9,11 +9,6 @@
 #include "log.h"
 #include "inode.h"
 
-struct amnesiafs_dir_record {
-	char filename[255];
-	uint64_t inode_no;
-};
-
 int amnesiafs_iterate(struct file *filp, struct dir_context *ctx)
 {
 	loff_t pos;
@@ -24,11 +19,14 @@ int amnesiafs_iterate(struct file *filp, struct dir_context *ctx)
 	struct amnesiafs_dir_record *record;
 	int i;
 
+	amnesiafs_debug("iterating over %s", filp->f_path.dentry->d_name.name);
+
 	pos = ctx->pos;
 	inode = filp->f_path.dentry->d_inode;
 	sb = inode->i_sb;
 
 	if (pos) {
+		amnesiafs_debug("exiting early");
 		return 0;
 	}
 
@@ -36,7 +34,7 @@ int amnesiafs_iterate(struct file *filp, struct dir_context *ctx)
 
 	if (!S_ISDIR(sfs_inode->mode)) {
 		amnesiafs_err(
-			"inode [%llu][%lu] for fs object [%s] not a directory",
+			"inode [%llu][%lu] for fs object %s is not a directory",
 			sfs_inode->inode_no, inode->i_ino,
 			filp->f_path.dentry->d_name.name);
 		return -ENOTDIR;
