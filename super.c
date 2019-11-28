@@ -79,7 +79,7 @@ static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 
 	root->i_ino = 1;
 	root->i_sb = sb;
-	root->i_op = &amnesiafs_inode_ops;
+	root->i_op = &amnesiafs_inode_operations;
 	root->i_fop = &amnesiafs_dir_operations;
 	root->i_atime = root->i_mtime = root->i_ctime = current_time(root);
 	inode_init_owner(root, NULL, S_IFDIR);
