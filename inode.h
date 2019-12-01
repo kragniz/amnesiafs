@@ -9,6 +9,10 @@ extern struct kmem_cache *amnesiafs_inode_cache;
 
 extern struct inode_operations amnesiafs_inode_operations;
 
+struct dentry *amnesiafs_lookup(struct inode *parent_inode,
+				struct dentry *child_dentry,
+				unsigned int flags);
+
 struct amnesiafs_inode *amnesiafs_get_inode(struct super_block *sb,
 					    uint64_t inode_no);
 
