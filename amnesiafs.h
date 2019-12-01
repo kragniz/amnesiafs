@@ -15,7 +15,9 @@ struct amnesiafs_super_block {
 
 	uint8_t salt[16];
 
-	uint8_t padding[4057];
+	uint64_t inodes_count;
+
+	uint8_t padding[4055];
 };
 
 struct amnesiafs_inode {
