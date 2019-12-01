@@ -15,18 +15,23 @@
 #include "keys.h"
 #include "log.h"
 
+struct amnesiafs_super_block *amnesiafs_get_super(struct super_block *sb)
+{
+	return sb->s_fs_info;
+}
+
 static void amnesiafs_put_super(struct super_block *sb)
 {
 	amnesiafs_debug("amnesiafs super block destroyed");
 }
 
-static struct super_operations const amnesiafs_super_ops = {
+const struct super_operations amnesiafs_super_operations = {
 	.put_super = amnesiafs_put_super,
 	.statfs = simple_statfs,
 	.destroy_inode = amnesiafs_destroy_inode,
 };
 
-static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
+int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 {
 	int err = 0;
 	struct inode *root = NULL;
@@ -69,7 +74,7 @@ static int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 	/* number of bits the blocksize requires, I think ??? */
 	sb->s_blocksize_bits = PAGE_SHIFT;
 	sb->s_magic = AMNESIAFS_MAGIC;
-	sb->s_op = &amnesiafs_super_ops;
+	sb->s_op = &amnesiafs_super_operations;
 	sb->s_time_gran = 1;
 
 	root = new_inode(sb);
@@ -105,60 +110,16 @@ out_err:
 	return err;
 }
 
-static struct dentry *amnesiafs_mount(struct file_system_type *type, int flags,
-				      char const *dev, void *data)
+void amnesiafs_sync_super(struct super_block *vsb)
 {
-	struct dentry *const entry =
-		mount_bdev(type, flags, dev, data, amnesiafs_fill_super);
-	if (IS_ERR(entry))
-		amnesiafs_err("amnesiafs mounting failed\n");
-	else
-		amnesiafs_debug("mounted");
-	return entry;
+	struct buffer_head *bh = NULL;
+	struct amnesiafs_super_block *sb = amnesiafs_get_super(vsb);
+
+	bh = sb_bread(vsb, 4);
+	BUG_ON(!bh);
+
+	bh->b_data = (char *)sb;
+	mark_buffer_dirty(bh);
+	sync_dirty_buffer(bh);
+	brelse(bh);
 }
-
-struct file_system_type amnesiafs_fs_type = {
-	.owner = THIS_MODULE,
-	.name = "amnesiafs",
-	.mount = amnesiafs_mount,
-	.kill_sb = kill_block_super,
-	.fs_flags = FS_REQUIRES_DEV,
-};
-
-static int __init amnesiafs_init(void)
-{
-	int err;
-
-	amnesiafs_inode_cache = kmem_cache_create(
-		"amnesiafs_inode_cache", sizeof(struct amnesiafs_inode), 0,
-		(SLAB_RECLAIM_ACCOUNT | SLAB_MEM_SPREAD), NULL);
-	if (!amnesiafs_inode_cache)
-		return -ENOMEM;
-
-	err = register_filesystem(&amnesiafs_fs_type);
-	if (err < 0)
-		amnesiafs_err("failed to register filesystem\n");
-
-	err = register_key_type(&amnesiafs_key_type);
-	if (err < 0)
-		amnesiafs_err("failed to register key type\n");
-
-	return err;
-}
-
-static void __exit amnesiafs_exit(void)
-{
-	int err = unregister_filesystem(&amnesiafs_fs_type);
-	if (err < 0)
-		amnesiafs_err("failed to unregister filesystem\n");
-
-	kmem_cache_destroy(amnesiafs_inode_cache);
-	unregister_key_type(&amnesiafs_key_type);
-}
-
-module_init(amnesiafs_init);
-module_exit(amnesiafs_exit);
-
-MODULE_DESCRIPTION("amnesiafs");
-MODULE_AUTHOR("Louis Taylor");
-MODULE_LICENSE("GPL");
