@@ -38,7 +38,7 @@ static int write_root_inode(int fd)
 	root_inode.mode = S_IFDIR;
 	root_inode.inode_no = 1;
 	root_inode.data_block_number = 4;
-	root_inode.dir_children_count = 1;
+	root_inode.dir_children_count = 0;
 
 	written = write(fd, &root_inode, sizeof(root_inode));
 
@@ -66,6 +66,7 @@ static int write_superblock(int fd)
 	struct amnesiafs_super_block sb = {
 		.version = 1,
 		.magic = AMNESIAFS_MAGIC,
+		.inodes_count = 0,
 	};
 
 	/* copy salt */

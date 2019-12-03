@@ -91,7 +91,10 @@ static void amnesiafs_inode_add(struct super_block *vsb,
 	struct buffer_head *bh = NULL;
 	struct amnesiafs_inode *inode_iterator = NULL;
 
-	bh = sb_bread(vsb, 4);
+	amnesiafs_debug("adding new inode");
+
+	amnesiafs_debug("inode count: %lld", sb->inodes_count);
+	bh = sb_bread(vsb, 1); /* TODO: is this the right block to use? */
 	BUG_ON(!bh);
 
 	inode_iterator = (struct amnesiafs_inode *)bh->b_data;
