@@ -115,7 +115,7 @@ int amnesiafs_inode_save(struct super_block *sb,
 	struct amnesiafs_inode *inode_iterator;
 	struct buffer_head *bh;
 
-	bh = sb_bread(sb, 4);
+	bh = sb_bread(sb, 1);
 	BUG_ON(!bh);
 
 	inode_iterator = amnesiafs_inode_search(
@@ -164,7 +164,7 @@ static int amnesiafs_create_fs_object(struct inode *dir, struct dentry *dentry,
 	inode->i_sb = sb;
 	inode->i_op = &amnesiafs_inode_operations;
 	inode->i_atime = inode->i_mtime = inode->i_ctime = current_time(inode);
-	inode->i_ino = 100;
+	inode->i_ino = 1;
 
 	amnesiafs_inode = kmem_cache_alloc(amnesiafs_inode_cache, GFP_KERNEL);
 	amnesiafs_inode->inode_no = inode->i_ino;
@@ -181,8 +181,10 @@ static int amnesiafs_create_fs_object(struct inode *dir, struct dentry *dentry,
 		inode->i_fop = &amnesiafs_file_operations;
 	}
 
+	amnesiafs_debug("assigned file operations");
+
 	/* TODO: actually choose a block */
-	amnesiafs_inode->data_block_number = 100;
+	amnesiafs_inode->data_block_number = 10;
 
 	amnesiafs_inode_add(sb, amnesiafs_inode);
 

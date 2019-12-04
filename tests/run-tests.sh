@@ -50,7 +50,7 @@ mount -t amnesiafs -o "key_name=${key_name}" "${disk}" "/tmp/mount"
 start_test "listing"
 ls -la "/tmp/mount"
 
-echo "toot" > "/tmp/mount/toot"
+echo "hello this is a longer file I'm not sure how long it should be" > "/tmp/mount/toot"
 
 start_test "umount"
 umount "/tmp/mount"

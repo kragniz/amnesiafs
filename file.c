@@ -25,7 +25,7 @@ ssize_t amnesiafs_write_iter(struct kiocb *iocb, struct iov_iter *from)
 	ssize_t err;
 	char *buffer;
 
-	amnesiafs_debug("amnesiafs_read_iter %s",
+	amnesiafs_debug("amnesiafs_write_iter %s",
 			iocb->ki_filp->f_path.dentry->d_iname);
 
 	err = file_update_time(file);
@@ -45,18 +45,27 @@ ssize_t amnesiafs_write_iter(struct kiocb *iocb, struct iov_iter *from)
 	buffer = (char *)bh->b_data;
 	buffer += iocb->ki_pos;
 
-	if (copy_from_iter(buffer, 4, from) != 4) {
+	written = copy_from_iter(buffer,
+				 min((size_t)AMNESIAFS_BLOCKSIZE,
+				     iov_iter_iovec(from).iov_len),
+				 from);
+	if (written <= 0) {
 		brelse(bh);
 		amnesiafs_err("copy_from_iter failed");
-		return -EFAULT;
+		err = -EFAULT;
+		goto out;
 	}
 
 	mark_buffer_dirty(bh);
 	sync_dirty_buffer(bh);
 	brelse(bh);
 
-	amnesiafs_inode->file_size = 4;
+	amnesiafs_inode->file_size = written;
 	err = amnesiafs_inode_save(inode->i_sb, amnesiafs_inode);
+	if (err < 0)
+		goto out;
+
+	return written;
 
 out:
 	return err;
