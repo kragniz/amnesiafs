@@ -16,6 +16,9 @@ struct dentry *amnesiafs_lookup(struct inode *parent_inode,
 struct amnesiafs_inode *amnesiafs_get_inode(struct super_block *sb,
 					    uint64_t inode_no);
 
+int amnesiafs_inode_save(struct super_block *sb,
+			 struct amnesiafs_inode *amnesiafs_inode);
+
 struct amnesiafs_inode *amnesiafs_get_inode_from_generic(struct inode *inode);
 
 void amnesiafs_destroy_inode(struct inode *inode);
