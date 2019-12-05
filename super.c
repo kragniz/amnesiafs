@@ -70,6 +70,11 @@ int amnesiafs_fill_super(struct super_block *sb, void *data, int silent)
 		return -EINVAL;
 	}
 
+	amnesiafs_debug(
+		"loaded super: version: %lld, inodes_count: %lld, blocks_available: %lld",
+		sb_disk->version, sb_disk->inodes_count,
+		sb_disk->blocks_available);
+
 	sb->s_blocksize = AMNESIAFS_BLOCKSIZE;
 	/* number of bits the blocksize requires, I think ??? */
 	sb->s_blocksize_bits = PAGE_SHIFT;

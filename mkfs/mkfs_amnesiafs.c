@@ -5,10 +5,13 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include <sys/random.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#include <linux/fs.h>
 
 #include <amnesiafs.h>
 
@@ -51,11 +54,31 @@ static int write_root_inode(int fd)
 	return 0;
 }
 
+static int64_t get_available_blocks(int fd)
+{
+	uint64_t size_bytes = 0;
+
+	int err = ioctl(fd, BLKGETSIZE64, &size_bytes);
+	if (err < 0) {
+		return err;
+	}
+
+	int64_t blocks = size_bytes / AMNESIAFS_BLOCKSIZE;
+
+	/* reserve one block for the superblock */
+	return blocks - 1;
+}
+
 static int write_superblock(int fd)
 {
 	int err = 0;
 	ssize_t written;
 	uint8_t salt[16];
+
+	int64_t blocks = get_available_blocks(fd);
+	if (blocks < 0) {
+		return blocks;
+	}
 
 	/* get a fresh salt for every amnesiafs device */
 	err = ensure_random_salt(salt);
@@ -67,6 +90,7 @@ static int write_superblock(int fd)
 		.version = 1,
 		.magic = AMNESIAFS_MAGIC,
 		.inodes_count = 0,
+		.blocks_available = blocks,
 	};
 
 	/* copy salt */
