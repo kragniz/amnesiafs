@@ -52,6 +52,8 @@ ls -la "/tmp/mount"
 
 echo "hello this is a longer file I'm not sure how long it should be" > "/tmp/mount/toot"
 
+cat "/tmp/mount/toot"
+
 start_test "umount"
 umount "/tmp/mount"
 

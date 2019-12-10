@@ -9,8 +9,46 @@
 
 ssize_t amnesiafs_read_iter(struct kiocb *iocb, struct iov_iter *to)
 {
+	struct file *file = iocb->ki_filp;
+	struct inode *inode = file->f_mapping->host;
+	struct amnesiafs_inode *amnesiafs_inode =
+		amnesiafs_get_inode_from_generic(inode);
+	struct buffer_head *bh;
+	ssize_t err;
+	char *buffer;
+	ssize_t read = 0;
+
 	amnesiafs_debug("amnesiafs_read_iter");
-	return generic_file_read_iter(iocb, to);
+
+	if (iocb->ki_pos >= amnesiafs_inode->file_size) {
+		return 0;
+	}
+
+	bh = sb_bread(inode->i_sb, amnesiafs_inode->data_block_number);
+	if (!bh) {
+		amnesiafs_err("reading the block number [%llu] failed.",
+			      amnesiafs_inode->data_block_number);
+		err = -EIO;
+		goto out;
+	}
+
+	buffer = (char *)bh->b_data;
+	int n = min(amnesiafs_inode->file_size, iov_iter_iovec(to).iov_len);
+	read = copy_to_iter(buffer, n, to);
+	amnesiafs_debug("want %d bytes, got %ld", n, read);
+	if (read <= 0) {
+		brelse(bh);
+		amnesiafs_err("copy_to_iter failed");
+		err = -EFAULT;
+		goto out;
+	}
+
+	brelse(bh);
+	amnesiafs_debug("returning %d", read);
+	return read;
+
+out:
+	return err;
 }
 
 ssize_t amnesiafs_write_iter(struct kiocb *iocb, struct iov_iter *from)
