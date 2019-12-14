@@ -15,8 +15,9 @@ ssize_t amnesiafs_read_iter(struct kiocb *iocb, struct iov_iter *to)
 		amnesiafs_get_inode_from_generic(inode);
 	struct buffer_head *bh;
 	ssize_t err;
-	char *buffer;
+	ssize_t to_read;
 	ssize_t read = 0;
+	char *buffer;
 
 	amnesiafs_debug("amnesiafs_read_iter");
 
@@ -33,9 +34,9 @@ ssize_t amnesiafs_read_iter(struct kiocb *iocb, struct iov_iter *to)
 	}
 
 	buffer = (char *)bh->b_data;
-	int n = min(amnesiafs_inode->file_size, iov_iter_iovec(to).iov_len);
-	read = copy_to_iter(buffer, n, to);
-	amnesiafs_debug("want %d bytes, got %ld", n, read);
+	to_read = min(amnesiafs_inode->file_size, (uint64_t)iov_iter_iovec(to).iov_len);
+	read = copy_to_iter(buffer, to_read, to);
+	amnesiafs_debug("want %ld bytes, got %ld", to_read, read);
 	if (read <= 0) {
 		brelse(bh);
 		amnesiafs_err("copy_to_iter failed");
@@ -44,8 +45,8 @@ ssize_t amnesiafs_read_iter(struct kiocb *iocb, struct iov_iter *to)
 	}
 
 	brelse(bh);
-	amnesiafs_debug("returning %d", read);
-	return read;
+	amnesiafs_debug("returning %lld", max(amnesiafs_inode->file_size - read, (uint64_t)0));
+	return max(amnesiafs_inode->file_size - read, (uint64_t)0);
 
 out:
 	return err;
